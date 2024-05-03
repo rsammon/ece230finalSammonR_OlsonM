@@ -1,6 +1,7 @@
 #include "msp.h"
 #include "multiLCD.h"
 #include "sysTickDelays.h"
+#include "csHFXT.h"
 
 /**
  * main.c

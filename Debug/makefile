@@ -10,6 +10,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./csHFXT.obj" \
 "./main.obj" \
 "./multiLCD.obj" \
 "./startup_msp432p4111_ccs.obj" \
@@ -145,8 +146,8 @@ ece230finalSammonR_OlsonM.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "main.obj" "multiLCD.obj" "startup_msp432p4111_ccs.obj" "sysTickDelays.obj" "system_msp432p4111.obj" 
-	-$(RM) "main.d" "multiLCD.d" "startup_msp432p4111_ccs.d" "sysTickDelays.d" "system_msp432p4111.d" 
+	-$(RM) "csHFXT.obj" "main.obj" "multiLCD.obj" "startup_msp432p4111_ccs.obj" "sysTickDelays.obj" "system_msp432p4111.obj" 
+	-$(RM) "csHFXT.d" "main.d" "multiLCD.d" "startup_msp432p4111_ccs.d" "sysTickDelays.d" "system_msp432p4111.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

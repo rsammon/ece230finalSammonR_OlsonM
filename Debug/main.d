@@ -20,6 +20,7 @@ main.obj: C:/ti/ccs1260/ccs/ccs_base/arm/include/CMSIS/cmsis_ccs.h
 main.obj: C:/ti/ccs1260/ccs/ccs_base/arm/include/system_msp432p4111.h
 main.obj: ../multiLCD.h
 main.obj: ../sysTickDelays.h
+main.obj: ../csHFXT.h
 
 ../main.c:
 
@@ -60,4 +61,6 @@ C:/ti/ccs1260/ccs/ccs_base/arm/include/system_msp432p4111.h:
 ../multiLCD.h:
 
 ../sysTickDelays.h:
+
+../csHFXT.h:
 
