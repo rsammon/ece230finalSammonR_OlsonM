@@ -1,8 +1,11 @@
 #include "msp.h"
-
+#include "multiLCD.h"
+#include "sysTickDelays.h"
 
 /**
  * main.c
+ * TODO write header file
+ * TODO make wiring diagram
  */
 void main(void)
 {
