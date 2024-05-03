@@ -162,8 +162,6 @@ void configLCD(LCD* lcdI, uint32_t clkFreq){
 }
 
 void initLCD(LCD* lcdI){
-
-
     if(lcdI->CONFIG & BIT1){ //lcd is in 4 bit mode
         //instructions for 4 bit mode found from Figure 24 from the HD44780U datasheet
         delayMilliSec(50); //wait for more than 40ms after Vcc rises to 2.7V
@@ -191,8 +189,36 @@ void initLCD(LCD* lcdI){
 
 }
 
+void printCharLCD(LCD * lcd, char input){
+    dataInstruction(lcd, input);
+}
 
+void setPortLCD(LCD *lcd, uint8_t portNumber){
+    uint8_t portConverted = 0xA + (portNumber-1)/2;
+    switch(portConverted){ //doesnt work with port J but tbh i honestly dont know what that port is so like who cares lol
+        case 0xA:
+            lcd->PORT = PA;
+            break;
+        case 0xB:
+            lcd->PORT = PB;
+            break;
+        case 0xC:
+            lcd->PORT = PC;
+            break;
+        case 0xD:
+            lcd->PORT = PD;
+            break;
+        case 0xE:
+            lcd->PORT = PE;
+            break;
+    }
 
+    if((portNumber) % 2){ //true if lower port (the odd ports) false if the higher port (the even ports)
+        lcd->CONFIG &= BIT2;
+    } else{
+        lcd->CONFIG |= BIT2;
+    }
+}
 void resetLCD(LCD * lcdI){
     //TODO implement maybe from page 23 of the HD44780 datasheet
 }

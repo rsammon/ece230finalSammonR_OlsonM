@@ -12,8 +12,9 @@
 /*define struct type for a LCD that contains
  * - port/pin information
  * - bit mode (8 bit or 4 bit)
+ * TODO finish list
  */
-typedef struct {
+typedef struct lcd_structure{
     //16 bit port type (e.g. PA, PB)
     DIO_PORT_Interruptable_Type * PORT;
     //16 bit port type (e.g. PA, PB)
@@ -90,5 +91,10 @@ extern void initLCD(LCD* lcdI);
 /*!
  * TODO add docs
  */
-extern void setPort(LCD *lcdI, uint8_t portNumber);
+extern void setPortLCD(LCD *lcd, uint8_t portNumber);
+
+/*!
+ *
+ */
+extern void printCharLCD(LCD * lcd, char input);
 #endif /* MULTILCD_H_ */
