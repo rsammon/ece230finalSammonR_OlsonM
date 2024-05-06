@@ -10,8 +10,8 @@
  */
 
 #define CLKFRQ  48000000 //MCLK configured with 48MHz
-const char msgOne[] = "HATSUNE";
-const char msgTwo[] = "MIKU";
+const char msgOne[] = "HATSUNE MIKU";
+const char msgTwo[] = "hatsune miku";
 void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
@@ -20,16 +20,18 @@ void main(void)
 	 * -5x8 dot mode
 	 * -2 line mode
 	 * -4 bit mode
-	 * -data connected to port 4H
+	 * -data connected to port 2H
 	 * -RS connected to pin 5.7
 	 * -E connected to pin 5.6
 	 */
 	LCD lcd1;
-	lcd1.CONFIG = BIT3;
+	lcd1.CONFIG = BIT3 | BIT5 |BIT0;
 	lcd1.RSPORT = PB;
 	lcd1.RSMASK = 0x200;
 	lcd1.EPORT = PB;
 	lcd1.EMASK = 0x100;
+	lcd1.RWPORT = PB;
+	lcd1.RWMASK = 0x400;
 	setPortLCD(&lcd1, 2);
 
 	configLCD(&lcd1, CLKFRQ);
