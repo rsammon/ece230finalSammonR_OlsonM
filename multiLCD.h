@@ -10,9 +10,11 @@
 #include "msp.h"
 
 /*define struct type for a LCD that contains
- * - port/pin information
+ * - port/pin information for both data and RS, E, and RW
  * - bit mode (8 bit or 4 bit)
- * TODO finish list
+ * - 2/1 line mode
+ * - dots mode (5x11 or 5x8)
+ * - busy flag or timing mode
  */
 typedef struct lcd_structure{
     //16 bit port type (e.g. PA, PB)
@@ -31,7 +33,8 @@ typedef struct lcd_structure{
     uint16_t RWMASK;
     /* config defines states of the
      * bit 7-6- reserved
-     * bit 5 - lcd is in busy flag mode (1) or timing mode (0) (busy flag mode is faster/more accurate but requires one extra pin on the MPU)
+     * bit 5 - lcd is in busy flag mode (1) or timing mode (0) (busy flag mode is faster/more accurate but requires one extra pin on the MPU,
+          timing mode is incredibly inconsistent for 4 bit mode)
      * bit 4 - lcd is 5x11 dots mode (1) or in 5x8 dots mode (0)
      * bit 3 - lcd is in 2 line mode (1) or 1 line mode (0)
      * bit 2 - lcd is connected to the higher port (1) or the lower port (0)
@@ -84,48 +87,67 @@ typedef struct lcd_structure{
 #define DATA_MODE           1
 
 /*!
- * TODO add docs
+ * sets up the pins for the lcd, configures the clock used for delays
+ * \param lcdI - the lcd to set up the pins for. requires initialized values for the RS, E, Port, and (if in BF check mode) RW
+ * \param clkFreq - the frequency in Hz to set the clock to
+ * \return none
  */
 extern void configLCD(LCD* lcdI, uint32_t clkFreq);
 
 /*!
- * TODO add docs
+ * initializes the lcd, following Figure 23/24 (depending on the bit interface mode)
+ * \param lcdI - the lcd to initialize. requires initialized values for the RS, E, Port, and (if in BF check mode) RW
+ * \return none
  */
 extern void initLCD(LCD* lcdI);
 
 /*!
- * TODO add docs
+ * sets the 16 bit port and bit of the config for a specified 8 bit port number.
+ * \param lcd - the lcd to set the port in
+ * \param portNumber - the number of the 8 bit port number that the lcd is connected to
+ * \return none
  */
 extern void setPortLCD(LCD *lcd, uint8_t portNumber);
 
 /*!
- *TODO add docs
+ * print a character to an lcd at the current cursor position
+ * \param lcd - the lcd to print the character on
+ * \param input - the character to print
+ * \return none
  */
 extern void printCharLCD(LCD * lcd, char input);
 
 /*!
- * TODO add docs
+ * prints a string to an lcd at the current cursor position
+ * \param lcd - the lcd to print the string on
+ * \param input - the string to print
+ * \param msgLength - the length of the string
+ * \return none
  */
 extern void printStringLCD(LCD * lcd, const char* input, int msgLength);
 
 /*!
- * TODO add docs
+ * clears the lcd and resets the current cursor position
+ * \param lcd - the lcd to clear
+ * \returns none
  */
 extern void clearDisplay(LCD * lcd);
 
 /*!
- * TODO add docs
+ * returns the cursor to the beginning of line 1
+ * \param lcd - the lcd to return the cursor to
+ * \return none
  */
 extern void returnCursor(LCD * lcd);
 
 /*!
- * TODO add docs
+ * places the cursor at the beginning of line 2 (only works for 2 line lcds)
+ * \param lcd - the lcd to create the new line at
+ * \return none
  */
 extern void newLine(LCD * lcd);
 
-/*!
- * TODO add docs
- */
-extern void shiftRightLCD(LCD * lcd, uint8_t moveCursor);
+//UNUSED
+//extern void shiftRightLCD(LCD * lcd, uint8_t moveCursor);
 
 #endif /* MULTILCD_H_ */

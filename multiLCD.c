@@ -231,7 +231,7 @@ void writeInstruction(LCD * lcdI, uint8_t mode, uint8_t instruction){
 }
 
 /*!
- * TODO write docs
+ * UNUSED: writes 4 bits to data top 4 pins
  */
 void writeInstruction4bit(LCD * lcdI, uint8_t mode, uint8_t instruction){
     setPinsOut(lcdI);
