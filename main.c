@@ -10,6 +10,8 @@
  */
 
 #define CLKFRQ  48000000 //MCLK configured with 48MHz
+const char msgOne[] = "HATSUNE";
+const char msgTwo[] = "MIKU";
 void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
@@ -17,35 +19,28 @@ void main(void)
 	/* config LCD with the following specs/configurations
 	 * -5x8 dot mode
 	 * -2 line mode
-	 * -8 bit mode
-	 * -data connected to port 4
+	 * -4 bit mode
+	 * -data connected to port 4H
 	 * -RS connected to pin 5.7
 	 * -E connected to pin 5.6
 	 */
 	LCD lcd1;
-	lcd1.CONFIG = BIT3 | BIT0;
-	lcd1.RSPORT = PC;
-	lcd1.RSMASK = BIT7;
-	lcd1.EPORT = PC;
-	lcd1.EMASK = BIT6;
-	setPortLCD(&lcd1, 4);
+	lcd1.CONFIG = BIT3;
+	lcd1.RSPORT = PB;
+	lcd1.RSMASK = 0x200;
+	lcd1.EPORT = PB;
+	lcd1.EMASK = 0x100;
+	setPortLCD(&lcd1, 2);
 
 	configLCD(&lcd1, CLKFRQ);
 
 	initLCD(&lcd1);
 
-	printCharLCD(&lcd1,'H');
-	printCharLCD(&lcd1,'a');
-	printCharLCD(&lcd1,'t');
-	printCharLCD(&lcd1,'s');
-	printCharLCD(&lcd1,'u');
-	printCharLCD(&lcd1,'n');
-	printCharLCD(&lcd1,'e');
-	printCharLCD(&lcd1,' ');
-	printCharLCD(&lcd1,'M');
-	printCharLCD(&lcd1,'i');
-	printCharLCD(&lcd1,'k');
-	printCharLCD(&lcd1,'u');
+	printStringLCD(&lcd1, msgOne, sizeof(msgOne)/sizeof(msgOne[0]));
+	newLine(&lcd1);
+	printStringLCD(&lcd1, msgTwo, sizeof(msgTwo)/sizeof(msgTwo[0]));
 
-	while(1);
+	while(1){
+	    delayMilliSec(1000);
+	}
 }

@@ -20,18 +20,19 @@ typedef struct lcd_structure{
     //16 bit port type (e.g. PA, PB)
     DIO_PORT_Interruptable_Type * RSPORT;
     //offset for the 16 bit port
-    char RSMASK;
+    uint16_t RSMASK;
     //16 bit port type (e.g. PA, PB)
     DIO_PORT_Interruptable_Type * EPORT;
     //offset for the 16 bit port
-    char EMASK;
+    uint16_t EMASK;
     /* config defines states of the
-     * bit 7-6 - reserved
+     * bit 7-6- reserved
+     * bit 5 - lcd is in busy flag mode (1) or timing mode (0) (busy flag mode is faster/more accurate but requires one extra pin on the MPU)
      * bit 4 - lcd is in 5x8 dots mode (0) or 5x11 dots mode (1)
      * bit 3 - lcd is in 2 line mode (1) or 1 line mode (0)
      * bit 2 - lcd is connected to the higher port (1) or the lower port (0)
      * bit 1 - lcd is connected to the upper (1) or lower (0) part of a port (only matters for 4 bit mode)
-     * bit 0 - lcd is in 4 bit mode (0) or 8 bit mode (1)
+     * bit 0 - lcd is in 4 bit mode (1) or 8 bit mode (0)
      */
     char CONFIG;
 } LCD;
@@ -94,7 +95,33 @@ extern void initLCD(LCD* lcdI);
 extern void setPortLCD(LCD *lcd, uint8_t portNumber);
 
 /*!
- *
+ *TODO add docs
  */
 extern void printCharLCD(LCD * lcd, char input);
+
+/*!
+ * TODO add docs
+ */
+extern void printStringLCD(LCD * lcd, const char* input, int msgLength);
+
+/*!
+ * TODO add docs
+ */
+extern void clearDisplay(LCD * lcd);
+
+/*!
+ * TODO add docs
+ */
+extern void returnCursor(LCD * lcd);
+
+/*!
+ * TODO add docs
+ */
+extern void newLine(LCD * lcd);
+
+/*!
+ * TODO add docs
+ */
+extern void shiftRightLCD(LCD * lcd, uint8_t moveCursor);
+
 #endif /* MULTILCD_H_ */

@@ -14,10 +14,57 @@
 #define FULLMASK  0xFF
 #define DOWNMASK 0x0F
 #define UPPERSHIFT 4
+#define ENABLELENGTH 1
 
 #define LONG_INSTR_DELAY    2000
 #define SHORT_INSTR_DELAY   50
 
+/*!
+ * sets the data pins to output mode
+ * \param LCD* lcd - the lcd to set the data pins as output
+ * \return none
+ */
+void setPinsOut(LCD * lcdI){
+    //config port pins as output
+    //DIR <- 1
+    if (lcdI->CONFIG & BIT0){ //lcd is in 4 bit mode
+        if(lcdI->CONFIG & BIT2){
+            lcdI->PORT->DIR_H |= ((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
+        } else {
+            lcdI->PORT->DIR_L |= ((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
+        }
+    }  else { //lcd is in 8 bit mode
+        if(lcdI->CONFIG & BIT2){ //lcd is in high port mode
+            lcdI->PORT->DIR_H = 0xFF;
+        } else { //lcd is in low port mode
+            lcdI->PORT->DIR_L = 0xFF;
+        }
+    }
+}
+
+/*!
+ * sets the data pins to input mode
+ * \param LCD* lcd - the lcd to set the data pins as input
+ * \return none
+ */
+void setPinsIn(LCD * lcdI){
+    //config data pins as input
+    /* DIR <-0
+     */
+    if (lcdI->CONFIG & BIT0){ //lcd is in 4 bit mode
+        if(lcdI->CONFIG & BIT2){
+            lcdI->PORT->DIR_H &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
+        } else {
+            lcdI->PORT->DIR_L &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
+        }
+    }  else { //lcd is in 8 bit mode
+        if(lcdI->CONFIG & BIT2){ //lcd is in high port mode
+            lcdI->PORT->DIR_H = 0;
+        } else { //lcd is in low port mode
+            lcdI->PORT->DIR_L = 0;
+        }
+    }
+}
 /*!
  * Delay method based on instruction execution time.
  *   Execution times from Table 6 of HD44780 data sheet, with buffer.
@@ -47,16 +94,55 @@ void instructionDelay(uint8_t mode, uint8_t instruction) {
  * \return none
  */
 void writeInstruction(LCD * lcdI, uint8_t mode, uint8_t instruction){
-    //TODO make write instruction work for 4 bit mode (rn it only writes the top bits)
+    //set RS if in data mode, reset RS if in control mode
+    if(mode == DATA_MODE){
+        lcdI->RSPORT->OUT |=lcdI->RSMASK;
+    } else {
+        lcdI->RSPORT->OUT &=~(lcdI->RSMASK);
+    }
+
     //set data on port
-    if (lcdI->CONFIG & BIT1){ //lcd is in 4 bit mode
+    if (lcdI->CONFIG & BIT0){ //lcd is in 4 bit mode
         //TODO fix this this is just flat out wrong idk what i was thinking
         //i may be stupid but at least im not smart
-           if(lcdI->CONFIG & BIT2){
-               lcdI->PORT->OUT_H = ( ((lcdI->CONFIG & BIT1) ? DOWNMASK:UPMASK) & lcdI->PORT->OUT_H) | (instruction << ((lcdI->CONFIG & BIT1) ? UPPERSHIFT : 0) );
-           } else {
-               lcdI->PORT->OUT_L = ( ((lcdI->CONFIG & BIT1) ? DOWNMASK:UPMASK) & lcdI->PORT->OUT_H) | (instruction << ((lcdI->CONFIG & BIT1) ? UPPERSHIFT : 0) );
+
+        //write the higher nibble of the instruction
+           if(lcdI->CONFIG & BIT2){ //in high port
+               if(lcdI->CONFIG & BIT1){ //in upper of port
+               lcdI->PORT->OUT_H = (DOWNMASK & lcdI->PORT->OUT_H) | (instruction & UPMASK);
+               } else { //in lower part of port
+                   lcdI->PORT->OUT_H = (UPMASK & lcdI->PORT->OUT_H) | ((instruction & UPMASK) >> UPPERSHIFT);
+               }
+           } else { //in low port
+               if(lcdI->CONFIG & BIT1){ //in upper of port
+                   lcdI->PORT->OUT_L = (DOWNMASK & lcdI->PORT->OUT_L) | (instruction & UPMASK);
+               } else { //in lower part of port
+                   lcdI->PORT->OUT_L = (UPMASK & lcdI->PORT->OUT_L) | ((instruction & UPMASK) >> UPPERSHIFT);
+               }
            }
+
+           //pulse E on to execute first nibble
+           lcdI->EPORT->OUT |= lcdI->EMASK;
+           delayMicroSec(ENABLELENGTH);
+           lcdI->EPORT->OUT &= ~(lcdI->EMASK);
+           instructionDelay(mode, instruction);
+
+           //write the lower nibble of the instruction
+           if(lcdI->CONFIG & BIT2){ //in high port
+               if(lcdI->CONFIG & BIT1){ //in upper of port
+                  lcdI->PORT->OUT_H = (DOWNMASK & lcdI->PORT->OUT_H) | ((instruction & DOWNMASK) <<UPPERSHIFT);
+               } else { //in lower part of port
+                      lcdI->PORT->OUT_H = (UPMASK & lcdI->PORT->OUT_H) | (instruction & DOWNMASK);
+               }
+           } else { //in low port
+               if(lcdI->CONFIG & BIT1){ //in upper of port
+                   lcdI->PORT->OUT_L = (DOWNMASK & lcdI->PORT->OUT_L) | ((instruction & DOWNMASK) <<UPPERSHIFT);
+               } else { //in lower part of port
+                   lcdI->PORT->OUT_L = (UPMASK & lcdI->PORT->OUT_L) | (instruction & DOWNMASK);
+               }
+           }
+
+           // TODO okay i think i need to pulse E and then write the bottom 4 bits
        }  else { //lcd is in 8 bit mode
            if(lcdI->CONFIG & BIT2){ //lcd is in high port mode
                lcdI->PORT->OUT_H = instruction;
@@ -64,6 +150,25 @@ void writeInstruction(LCD * lcdI, uint8_t mode, uint8_t instruction){
                lcdI->PORT->OUT_L = instruction;
            }
        }
+
+    //pulse E on to execute instruction on lcd
+    lcdI->EPORT->OUT |= lcdI->EMASK;
+    delayMicroSec(ENABLELENGTH);
+    lcdI->EPORT->OUT &= ~(lcdI->EMASK);
+    //delay to wait until instruction is finished executing
+    instructionDelay(mode, instruction);
+}
+
+/*!
+ * TODO write docs
+ */
+void writeInstruction4bit(LCD * lcdI, uint8_t mode, uint8_t instruction){
+    //write nibble to port
+    if(lcdI->CONFIG & BIT2){
+        lcdI->PORT->OUT_H = ( ((lcdI->CONFIG & BIT1) ? DOWNMASK:UPMASK) & lcdI->PORT->OUT_H) | (instruction << ((lcdI->CONFIG & BIT1) ? UPPERSHIFT : 0) );
+    } else {
+        lcdI->PORT->OUT_L = ( ((lcdI->CONFIG & BIT1) ? DOWNMASK:UPMASK) & lcdI->PORT->OUT_H) | (instruction << ((lcdI->CONFIG & BIT1) ? UPPERSHIFT : 0) );
+    }
     //set RS if in data mode, reset RS if in control mode
     if(mode == DATA_MODE){
         lcdI->RSPORT->OUT |=lcdI->RSMASK;
@@ -72,7 +177,7 @@ void writeInstruction(LCD * lcdI, uint8_t mode, uint8_t instruction){
     }
     //pulse E on to execute instruction on lcd
     lcdI->EPORT->OUT |= lcdI->EMASK;
-    delayMicroSec(1);
+    delayMicroSec(ENABLELENGTH);
     lcdI->EPORT->OUT &= ~(lcdI->EMASK);
     //delay to wait until instruction is finished executing
     instructionDelay(mode, instruction);
@@ -101,6 +206,29 @@ void dataInstruction(LCD * lcd, uint8_t data) {
     writeInstruction(lcd, DATA_MODE, data);
 }
 
+/*!
+ * Function to write command instruction to LCD.
+ * \param lcd Pointer to lcd struct describing the lcd to write to
+ * \param command Command instruction to write to LCD
+ *
+ * \return None
+ */
+void commandInstruction4bit(LCD * lcd,uint8_t command) {
+    writeInstruction4bit(lcd, CTRL_MODE, command);
+}
+
+/*!
+ * Function to write data instruction to LCD. Writes ASCII value to current
+ *  cursor location.
+ * \param lcd Pointer to lcd struct describing the lcd to write to
+ * \param data ASCII value/data to write to LCD
+ *
+ * \return None
+ */
+void dataInstruction4bit(LCD * lcd, uint8_t data) {
+    writeInstruction4bit(lcd, DATA_MODE, data);
+}
+
 
 void configLCD(LCD* lcdI, uint32_t clkFreq){
     //init EN to low
@@ -114,37 +242,36 @@ void configLCD(LCD* lcdI, uint32_t clkFreq){
     lcdI->EPORT->SEL1 &= ~(lcdI->EMASK);
     lcdI->EPORT->DIR |= lcdI->EMASK;
     lcdI->EPORT->OUT &= ~(lcdI->EMASK);
-    //config port pins as GPIO
-    /* SEL0 <- 0
+
+    //init select pins for lcd data pins
+    /* SEL0 <- 0 set to gpio mode
      * SEL1 <- 0
-     * DIR  <- 1
-     * OUT <-  0
+     * REN  <- 0 disable pullup/down resistor
      */
-    if (lcdI->CONFIG & BIT1){ //lcd is in 4 bit mode
+    if (lcdI->CONFIG & BIT0){ //lcd is in 4 bit mode
         if(lcdI->CONFIG & BIT2){
             lcdI->PORT->SEL0_H &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
             lcdI->PORT->SEL1_H &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
-            lcdI->PORT->DIR_H |= ((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
-            //lcdI->PORT->OUT_H &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
+            lcdI->PORT->REN_H &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
+
         } else {
             lcdI->PORT->SEL0_L &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
             lcdI->PORT->SEL1_L &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
-            lcdI->PORT->DIR_L |= ((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
-            //lcdI->PORT->OUT_L &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
+            lcdI->PORT->REN_L &= ~((lcdI->CONFIG & BIT1) ? UPMASK:DOWNMASK);
         }
     }  else { //lcd is in 8 bit mode
         if(lcdI->CONFIG & BIT2){ //lcd is in high port mode
             lcdI->PORT->SEL0_H = 0;
             lcdI->PORT->SEL1_H = 0;
-            lcdI->PORT->DIR_H = 0xFF;
-            //lcdI->PORT->OUT_H = 0;
+            lcdI->PORT->REN_H = 0;
         } else { //lcd is in low port mode
             lcdI->PORT->SEL0_L = 0;
             lcdI->PORT->SEL1_L = 0;
-            lcdI->PORT->DIR_L = 0xFF;
-            //lcdI->PORT->OUT_L = 0;
+            lcdI->PORT->REN_L = 0;
         }
     }
+
+    setPinsOut(lcdI);
     //init RS pin
     /*
         * SEL0 <- 0
@@ -162,14 +289,25 @@ void configLCD(LCD* lcdI, uint32_t clkFreq){
 }
 
 void initLCD(LCD* lcdI){
-    if(lcdI->CONFIG & BIT1){ //lcd is in 4 bit mode
+    if(lcdI->CONFIG & BIT0){ //lcd is in 4 bit mode
         //instructions for 4 bit mode found from Figure 24 from the HD44780U datasheet
         delayMilliSec(50); //wait for more than 40ms after Vcc rises to 2.7V
-        // actually 4 bit and 8 bit might be the same code TODO figure this one out for me pls
+        commandInstruction(lcdI, FUNCTION_SET_MASK | DL_FLAG_MASK); //function set
+        delayMicroSec(5000); // wait for more than 4.1 ms
+        commandInstruction(lcdI, FUNCTION_SET_MASK | DL_FLAG_MASK); //function set
+        delayMicroSec(150); //wait for more than 100 micros
+        commandInstruction(lcdI, FUNCTION_SET_MASK | DL_FLAG_MASK); //function set
+        //function set to 4 bit mode; line number and dot format from lcd config
+        commandInstruction(lcdI, FUNCTION_SET_MASK);
+        commandInstruction(lcdI, FUNCTION_SET_MASK | ((lcdI->CONFIG & BIT4) >> 2) | (lcdI->CONFIG & BIT3));
+        commandInstruction(lcdI, DISPLAY_CTRL_MASK); //display off
+        commandInstruction(lcdI, CLEAR_DISPLAY_MASK); //clear display
+        commandInstruction(lcdI, ENTRY_MODE_MASK | ID_FLAG_MASK); //set entry mode to increment right
+
 
     } else { //lcd is in 8 bit mode
         //instructions for 8 bit mode found from Figure 23 from the HD44780U datasheet
-        delayMilliSec(40); //wait for more than 40ms after Vcc rises to 2.7V
+        delayMilliSec(50); //wait for more than 40ms after Vcc rises to 2.7V
         commandInstruction(lcdI, FUNCTION_SET_MASK | DL_FLAG_MASK); //function set
         delayMicroSec(5000); // wait for more than 4.1 ms
         commandInstruction(lcdI, FUNCTION_SET_MASK | DL_FLAG_MASK); //function set
@@ -185,7 +323,6 @@ void initLCD(LCD* lcdI){
         //turn lcd on
         commandInstruction(lcdI, DISPLAY_CTRL_MASK | D_FLAG_MASK);
     }
-
 
 }
 
@@ -214,11 +351,39 @@ void setPortLCD(LCD *lcd, uint8_t portNumber){
     }
 
     if((portNumber) % 2){ //true if lower port (the odd ports) false if the higher port (the even ports)
-        lcd->CONFIG &= BIT2;
+        lcd->CONFIG &= ~BIT2;
     } else{
         lcd->CONFIG |= BIT2;
     }
 }
 void resetLCD(LCD * lcdI){
     //TODO implement maybe from page 23 of the HD44780 datasheet
+}
+
+void printStringLCD(LCD * lcd, const char * input, int msgLength){
+    int i;
+    for(i = 0; i < msgLength-1; i++){
+        printCharLCD(lcd, input[i]);
+    }
+}
+
+void clearDisplay(LCD * lcd) {
+    // clear the LCD display and return cursor to home position
+    commandInstruction(lcd, CLEAR_DISPLAY_MASK);
+}
+
+void returnCursor(LCD * lcd){
+    commandInstruction(lcd, BIT1);
+}
+
+void newLine(LCD * lcd){
+    commandInstruction(lcd, BIT7 + 0x40);
+}
+
+void shiftLCD(LCD * lcd, uint8_t moveRL, uint8_t moveCursor){
+    commandInstruction(lcd, (DL_FLAG_MASK | (moveRL<<2) | (moveCursor <<3) ) );
+}
+
+void shiftRightLCD(LCD * lcd, uint8_t moveCursor){
+    shiftLCD(lcd, 1, moveCursor);
 }
