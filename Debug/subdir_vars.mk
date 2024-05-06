@@ -9,6 +9,7 @@ CMD_SRCS += \
 ../msp432p4111.cmd 
 
 C_SRCS += \
+../csHFXT.c \
 ../main.c \
 ../multiLCD.c \
 ../startup_msp432p4111_ccs.c \
@@ -16,6 +17,7 @@ C_SRCS += \
 ../system_msp432p4111.c 
 
 C_DEPS += \
+./csHFXT.d \
 ./main.d \
 ./multiLCD.d \
 ./startup_msp432p4111_ccs.d \
@@ -23,6 +25,7 @@ C_DEPS += \
 ./system_msp432p4111.d 
 
 OBJS += \
+./csHFXT.obj \
 ./main.obj \
 ./multiLCD.obj \
 ./startup_msp432p4111_ccs.obj \
@@ -30,6 +33,7 @@ OBJS += \
 ./system_msp432p4111.obj 
 
 OBJS__QUOTED += \
+"csHFXT.obj" \
 "main.obj" \
 "multiLCD.obj" \
 "startup_msp432p4111_ccs.obj" \
@@ -37,6 +41,7 @@ OBJS__QUOTED += \
 "system_msp432p4111.obj" 
 
 C_DEPS__QUOTED += \
+"csHFXT.d" \
 "main.d" \
 "multiLCD.d" \
 "startup_msp432p4111_ccs.d" \
@@ -44,6 +49,7 @@ C_DEPS__QUOTED += \
 "system_msp432p4111.d" 
 
 C_SRCS__QUOTED += \
+"../csHFXT.c" \
 "../main.c" \
 "../multiLCD.c" \
 "../startup_msp432p4111_ccs.c" \
