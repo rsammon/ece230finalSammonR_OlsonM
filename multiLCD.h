@@ -124,7 +124,7 @@ extern void printCharLCD(LCD * lcd, char input);
  * \param msgLength - the length of the string
  * \return none
  */
-extern void printStringLCD(LCD * lcd, const char* input, int msgLength);
+extern void printStringLCD(LCD * lcd, char* input, int msgLength);
 
 /*!
  * clears the lcd and resets the current cursor position

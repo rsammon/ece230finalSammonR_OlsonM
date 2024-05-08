@@ -21,6 +21,9 @@ main.obj: C:/ti/ccs1260/ccs/ccs_base/arm/include/system_msp432p4111.h
 main.obj: ../multiLCD.h
 main.obj: ../sysTickDelays.h
 main.obj: ../csHFXT.h
+main.obj: ../csLFXT.h
+main.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/string.h
+main.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/xlocale/_string.h
 
 ../main.c:
 
@@ -63,4 +66,10 @@ C:/ti/ccs1260/ccs/ccs_base/arm/include/system_msp432p4111.h:
 ../sysTickDelays.h:
 
 ../csHFXT.h:
+
+../csLFXT.h:
+
+C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/string.h:
+
+C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/xlocale/_string.h:
 

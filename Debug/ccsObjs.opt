@@ -1,4 +1,5 @@
 "./csHFXT.obj"
+"./csLFXT.obj"
 "./main.obj"
 "./multiLCD.obj"
 "./startup_msp432p4111_ccs.obj"
