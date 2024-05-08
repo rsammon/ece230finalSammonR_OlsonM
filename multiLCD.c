@@ -453,7 +453,7 @@ void resetLCD(LCD * lcdI){
     //TODO implement maybe from page 23 of the HD44780 datasheet
 }
 
-void printStringLCD(LCD * lcd, const char * input, int msgLength){
+void printStringLCD(LCD * lcd, char * input, int msgLength){
     int i;
     for(i = 0; i < msgLength-1; i++){
         printCharLCD(lcd, input[i]);
