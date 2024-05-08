@@ -61,13 +61,14 @@ void main(void)
 	/* config LCD with the following specs/configurations
 	 * -5x8 dot mode
 	 * -2 line mode
-	 * -4 bit mode
-	 * -data connected to port 2H
-	 * -RS connected to pin 5.7
-	 * -E connected to pin 5.6
+	 * -8 bit mode
+	 * -data connected to port 2
+	 * -RS connected to pin 4.1
+	 * -RW connected to pin 4.2
+	 * -E connected to pin 4.0
 	 */
 
-	notelcd.CONFIG = BIT3 | BIT5 |BIT0;
+	notelcd.CONFIG = BIT3 | BIT5;
 	notelcd.RSPORT = PB;
 	notelcd.RSMASK = 0x200;
 	notelcd.EPORT = PB;
