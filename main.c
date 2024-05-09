@@ -25,6 +25,8 @@ const char leftLaneMap[] = ">                   >       > >>>>>   >>>|";
 
 LCD notelcd;
 
+volatile uint16_t score;
+
 #define BPM                 400
 #define NOTE_SPEED          BPM/4
 #define SCROLL_TIMER        TIMER_A1
@@ -56,11 +58,33 @@ void setupNoteScrolling(){
     }
 }
 
+#define LBUT_PORT      P3
+#define LBUT_MASK      BIT0
+#define RBUT_PORT      P3
+#define RBUT_MASK      BIT2
 /*!
  * sets up the input buttons with interrupts
  */
 void setupButtons(){
-    //set buttons as inputs with a pulldown resistor
+    //set buttons as inputs with a pullup resistor
+    LBUT_PORT->SEL0 &= ~LBUT_MASK;
+    LBUT_PORT->SEL1 &= ~LBUT_MASK;
+    LBUT_PORT->DIR &= ~LBUT_MASK;
+    LBUT_PORT->REN &= ~LBUT_MASK;
+    LBUT_PORT->OUT &= ~LBUT_MASK;
+
+    RBUT_PORT->SEL0 &= ~RBUT_MASK;
+    RBUT_PORT->SEL1 &= ~RBUT_MASK;
+    RBUT_PORT->DIR &= ~RBUT_MASK;
+    RBUT_PORT->REN &= ~RBUT_MASK;
+    RBUT_PORT->OUT &= ~RBUT_MASK;
+
+    //enable interrupts
+    LBUT_PORT->IES |= LBUT_MASK;
+    LBUT_PORT->IE  |= LBUT_MASK;
+    RBUT_PORT->IES |= RBUT_MASK;
+    RBUT_PORT->IE  |= RBUT_MASK;
+    NVIC->ISER[1] |= 0x1 << (PORT3_IRQn-32);
 }
 
 void main(void)
@@ -91,11 +115,12 @@ void main(void)
 
 	setupNoteScrolling();
 	setupButtons();
+	score = 0;
 
     __enable_irq();
 
    SCROLL_TIMER->CTL |= 0x10; //Start note scrolling timer
-
+   while(1);
 }
 
 void TA1_0_IRQHandler(void) {
@@ -119,4 +144,17 @@ void TA1_0_IRQHandler(void) {
     printStringLCD(&notelcd, rightLane, LCD_SIZE+1);
     newLine(&notelcd);
     printStringLCD(&notelcd,leftLane, LCD_SIZE+1);
+}
+
+void PORT3_IRQHandler(void) {
+    //check which interrupt was triggered
+    if(LBUT_PORT->IFG & LBUT_MASK){
+        LBUT_PORT->IFG &= ~LBUT_MASK; //reset interrupt flag
+        if(leftLane[15] == '>') score++;
+    }
+
+    if(RBUT_PORT->IFG & RBUT_MASK){
+        RBUT_PORT->IFG &= ~RBUT_MASK; //reset interrupt flag
+        if(rightLane[15] == '>') score++;
+    }
 }
