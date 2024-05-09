@@ -27,11 +27,14 @@ LCD notelcd;
 
 #define BPM                 400
 #define NOTE_SPEED          BPM/4
-#define SCROLL_TIMER        TIMER_A0
+#define SCROLL_TIMER        TIMER_A1
 #define PRESCALER           2
 
 #define TIMER_NOTE_SPEED    60*ACLKFRQ/(PRESCALER*NOTE_SPEED)
-//#define SCROLL_TIMER_INTERRUPT      void TA0_0_IRQHandler(void)
+
+/*!
+ * sets up the timer and other stuff for the note scrolling
+ */
 void setupNoteScrolling(){
     /*configure timer
      * -SMCLK source
@@ -41,7 +44,7 @@ void setupNoteScrolling(){
     SCROLL_TIMER->CCR[0] = TIMER_NOTE_SPEED;
     SCROLL_TIMER->CTL = 0x0146; //0000 0001 0100 0110
 
-    NVIC->ISER[0] |= 0x1 << TA0_0_IRQn; //enable interrupts globally
+    NVIC->ISER[0] |= 0x1 << TA1_0_IRQn; //enable interrupts globally
 
     mapPos = 0; //set to first part of note map
 
@@ -51,6 +54,13 @@ void setupNoteScrolling(){
         rightLane[i] = ' ';
         leftLane[i] = ' ';
     }
+}
+
+/*!
+ * sets up the input buttons with interrupts
+ */
+void setupButtons(){
+    //set buttons as inputs with a pulldown resistor
 }
 
 void main(void)
@@ -80,7 +90,7 @@ void main(void)
 	initLCD(&notelcd);
 
 	setupNoteScrolling();
-
+	setupButtons();
 
     __enable_irq();
 
@@ -88,9 +98,8 @@ void main(void)
 
 }
 
-void TA0_0_IRQHandler(void) {
+void TA1_0_IRQHandler(void) {
     SCROLL_TIMER->CCTL[0] &= 0xFE; //reset flag
-    //SCROLL_TIMER->CTL &= 0xFE; //reset flag
 
     //shift notes down
     int i;
