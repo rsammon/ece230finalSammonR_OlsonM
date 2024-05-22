@@ -4,6 +4,7 @@
 #include "csHFXT.h"
 #include "csLFXT.h"
 #include <string.h>
+#include <stdio.h>
 
 /**
  * main.c
@@ -24,6 +25,7 @@ const char rightLaneMap[] = ">                 >       > >>>>>   >>>  |";
 const char leftLaneMap[] = ">                   >       > >>>>>   >>>|";
 
 LCD notelcd;
+LCD scorelcd;
 
 volatile uint16_t score;
 
@@ -95,31 +97,53 @@ void main(void)
 	/* config LCD with the following specs/configurations
 	 * -5x8 dot mode
 	 * -2 line mode
-	 * -8 bit mode
-	 * -data connected to port 2
-	 * -RS connected to pin 4.1
-	 * -RW connected to pin 4.2
-	 * -E connected to pin 4.0
+	 * -4 bit mode
+	 * -data connected to lower port 4
+	 * -RS connected to pin 6.0
+	 * -RW connected to pin 6.1
+	 * -E connected to pin 4.4
 	 */
 
-	notelcd.CONFIG = BIT3 | BIT5;
-	notelcd.RSPORT = PB;
-	notelcd.RSMASK = 0x200;
-	notelcd.EPORT = PB;
-	notelcd.EMASK = 0x100;
-	notelcd.RWPORT = PB;
-	notelcd.RWMASK = 0x400;
+	scorelcd.CONFIG = BIT3 | BIT5 | BIT0;
+	scorelcd.RSPORT = PC;
+	scorelcd.RSMASK = BIT0 << 8;
+	scorelcd.EPORT = PB;
+	scorelcd.EMASK = BIT4 << 8;
+	scorelcd.RWPORT = PC;
+	scorelcd.RWMASK = BIT1 << 8;
+	setPortLCD(&scorelcd, 4);
+	configLCD(&scorelcd, CLKFRQ);
+	initLCD(&scorelcd);
+
+    /* config LCD with the following specs/configurations
+     * -5x8 dot mode
+     * -2 line mode
+     * -4 bit mode
+     * -data connected to lower port 4
+     * -RS connected to pin 5.2
+     * -RW connected to pin 5.1
+     * -E connected to pin 5.0
+     */
+
+	notelcd.CONFIG = BIT3 | BIT5 | BIT0;
+	notelcd.RSPORT = PC;
+	notelcd.RSMASK = BIT2;
+	notelcd.EPORT = PC;
+	notelcd.EMASK = BIT0;
+	notelcd.RWPORT = PC;
+	notelcd.RWMASK = BIT1;
 	setPortLCD(&notelcd, 2);
 	configLCD(&notelcd, CLKFRQ);
 	initLCD(&notelcd);
 
 	setupNoteScrolling();
 	setupButtons();
-	score = 0;
+
 
     __enable_irq();
 
    SCROLL_TIMER->CTL |= 0x10; //Start note scrolling timer
+   score = 0;
    while(1);
 }
 
@@ -151,10 +175,20 @@ void PORT3_IRQHandler(void) {
     if(LBUT_PORT->IFG & LBUT_MASK){
         LBUT_PORT->IFG &= ~LBUT_MASK; //reset interrupt flag
         if(leftLane[15] == '>') score++;
+        else score--;
     }
 
     if(RBUT_PORT->IFG & RBUT_MASK){
         RBUT_PORT->IFG &= ~RBUT_MASK; //reset interrupt flag
         if(rightLane[15] == '>') score++;
+        else score--;
     }
+
+    if(score ==65535) score =0;
+    //update score
+    returnCursor(&scorelcd);
+    char scoreString[16];
+    sprintf(scoreString, "Score: %8d",score);
+    printStringLCD(&scorelcd, scoreString, sizeof(scoreString)/sizeof(scoreString[0]));
+
 }
