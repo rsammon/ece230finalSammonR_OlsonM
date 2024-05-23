@@ -383,14 +383,7 @@ void main(void)
    SCROLL_TIMER->CTL |= 0x10; //Start note scrolling timer
    score = 0;
    while(1){
-       for(weakDelay = 1000000; weakDelay > 0; weakDelay--) {
 
-               }
-               noteIndex = (noteIndex + 1)%NOTECNT;
-               TIMER_A2->CTL |= BIT5;
-               TIMER_A0->CCR[0] = notePeriods[noteIndex] - 1;
-               TIMER_A0->CCR[1] = (notePeriods[noteIndex] / 2) - 1;
-   }
 }
 
 void TA1_0_IRQHandler(void) {
