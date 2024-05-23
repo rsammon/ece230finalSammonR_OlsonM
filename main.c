@@ -376,7 +376,7 @@ void main(void)
 	TIMER_A2->CCR[2] = notePeriods[0];
 	TIMER_A2->CCTL[2] = 0x0010;
 	TIMER_A2->CTL = 0x0126;
-	NVIC->ISER[0] |= ~0x7FF;
+	NVIC->ISER[0] |= (1 << TA2_N_IRQn);
 
     __enable_irq();
 
@@ -443,11 +443,9 @@ void TA2_N_IRQHandler(void)
    {
        int delay = 0;
        /* Check if interrupt triggered by timer overflow */
-       if(TIMER_A2->CTL)
+       if(TIMER_A2->CTL & TIMER_A_CTL_IFG)
        {
 
-           // Clear timer overflow flag
-           // TODO clear flag in TA1CTL
            TIMER_A2->CTL &= ~BIT0;
 
        }
@@ -462,7 +460,6 @@ void TA2_N_IRQHandler(void)
            //Rest for 5ms
            TIMER_A0->CCR[0] = 0;
            TIMER_A0->CCR[1] = 0;
-           for( delay = 0; delay < 15000; delay++);
            //Update note length
            TIMER_A2->CCR[2] += notePeriods[noteIndex];
            //Update note frequency
