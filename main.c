@@ -244,8 +244,9 @@ const uint16_t notePeriods[277] = {EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH
  char rightLane[LCD_SIZE];
 char leftLane[LCD_SIZE];
 int mapPos;
-char rightLaneMap[300*4];
-char leftLaneMap[300*4];
+#define MAPLENGTH 300*4
+char rightLaneMap[MAPLENGTH];
+char leftLaneMap[MAPLENGTH];
 uint32_t noteIndex = 0;
 LCD notelcd;
 LCD scorelcd;
@@ -273,13 +274,13 @@ void setupNoteScrolling(){
 
     NVIC->ISER[0] |= 0x1 << TA1_0_IRQn; //enable interrupts globally
 
-    mapPos = 0; //set to first part of note map
+    mapPos = 17; //set to first part of note map
 
-    //fill lanes with spaces
+    //fill lanes from map
     int i;
     for(i = 0; i < LCD_SIZE; i++){
-        rightLane[i] = ' ';
-        leftLane[i] = ' ';
+        rightLane[i] = rightLaneMap[i];
+        leftLane[i] = leftLaneMap[i];
     }
 }
 
@@ -314,29 +315,30 @@ void setupButtons(){
 
 void generateMap(){
 
-    int rightPos = 16;
-    int leftPos = 16;
+    int linePos = 0;
+
+
     int i = 0;
+    for(i = 0; i < (MAPLENGTH - 1); i++){
+        rightLaneMap[i] = ' ';
+        leftLaneMap[i] = ' ';
+    }
+
     int sixteenths;
     int j = 0;
     for(i = 0; i < sizeof(notePeriods)/sizeof(notePeriods[0]) - 1; i++){
         sixteenths = (notePeriods[i]/SIXTEENTH_NOTE);
-        for(j = 0; j < sixteenths - 1; j++){
-            if(i %2){
-                rightLaneMap[rightPos] = ' ';
-                rightPos++;
-            } else {
-                leftLaneMap[leftPos] = ' ';
-                leftPos++;
-            }
-        }
         if(i %2){
-            rightLaneMap[rightPos] = '>';
-            rightPos++;
+            rightLaneMap[linePos] = '>';
+            linePos++;
         } else {
-            leftLaneMap[leftPos] = '>';
-            leftPos++;
+            leftLaneMap[linePos] = '>';
+            linePos++;
         }
+        for(j = 0; j < sixteenths - 1; j++){
+           linePos++;
+        }
+
     }
 }
 
