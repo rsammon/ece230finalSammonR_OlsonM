@@ -1,3 +1,15 @@
+
+/*! \file */
+/******************************************************************************
+ * MSP432 Final Project
+ *
+ * Description: Program that uses an array of notes and and array of note lengths as well as LCD
+ * displays, buttons, and a buzzer to make a simple two-column rhythm game
+ *
+ * Author: Mateo Olson, Rowan Sammon
+ * Last-modified: 5/23/2024
+ *
+*******************************************************************************/
 #include "msp.h"
 #include "multiLCD.h"
 #include "sysTickDelays.h"
@@ -231,11 +243,6 @@ const uint16_t notePeriods[277] = {EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH
                                   QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
                                   QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
                                   EIGHTH_NOTE, QUARTER_NOTE, SIXTEENTH_NOTE, SIXTEENTH_NOTE, DOTTED_HALF_NOTE};
-/**
- * main.c
- * TODO write header file
- * TODO make wiring diagram
- */
 
 #define CLKFRQ  48000000 //MCLK configured with 48MHz
 #define ACLKFRQ 32000   //ACLK configured with 32kHz
@@ -344,31 +351,31 @@ void generateMap(){
 
 void main(void)
 {
-	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
-	generateMap();
+    WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
+    generateMap();
 
-	configHFXT(); //configures HFXT as the source for SMCLK and MCLK at 48MHz
-	configLFXT(); //configures LFXT as the source for ACLK
-	/* config LCD with the following specs/configurations
-	 * -5x8 dot mode
-	 * -2 line mode
-	 * -4 bit mode
-	 * -data connected to lower port 4
-	 * -RS connected to pin 6.0
-	 * -RW connected to pin 6.1
-	 * -E connected to pin 4.4
-	 */
+    configHFXT(); //configures HFXT as the source for SMCLK and MCLK at 48MHz
+    configLFXT(); //configures LFXT as the source for ACLK
+    /* config LCD with the following specs/configurations
+     * -5x8 dot mode
+     * -2 line mode
+     * -4 bit mode
+     * -data connected to lower port 4
+     * -RS connected to pin 6.0
+     * -RW connected to pin 6.1
+     * -E connected to pin 4.4
+     */
 
-	scorelcd.CONFIG = BIT3 | BIT5 | BIT0;
-	scorelcd.RSPORT = PC;
-	scorelcd.RSMASK = BIT0 << 8;
-	scorelcd.EPORT = PB;
-	scorelcd.EMASK = BIT4 << 8;
-	scorelcd.RWPORT = PC;
-	scorelcd.RWMASK = BIT1 << 8;
-	setPortLCD(&scorelcd, 4);
-	configLCD(&scorelcd, CLKFRQ);
-	initLCD(&scorelcd);
+    scorelcd.CONFIG = BIT3 | BIT5 | BIT0;
+    scorelcd.RSPORT = PC;
+    scorelcd.RSMASK = BIT0 << 8;
+    scorelcd.EPORT = PB;
+    scorelcd.EMASK = BIT4 << 8;
+    scorelcd.RWPORT = PC;
+    scorelcd.RWMASK = BIT1 << 8;
+    setPortLCD(&scorelcd, 4);
+    configLCD(&scorelcd, CLKFRQ);
+    initLCD(&scorelcd);
 
     /* config LCD with the following specs/configurations
      * -5x8 dot mode
@@ -380,35 +387,35 @@ void main(void)
      * -E connected to pin 5.0
      */
 
-	notelcd.CONFIG = BIT3 | BIT5 | BIT0;
-	notelcd.RSPORT = PC;
-	notelcd.RSMASK = BIT2;
-	notelcd.EPORT = PC;
-	notelcd.EMASK = BIT0;
-	notelcd.RWPORT = PC;
-	notelcd.RWMASK = BIT1;
-	setPortLCD(&notelcd, 2);
-	configLCD(&notelcd, CLKFRQ);
-	initLCD(&notelcd);
+    notelcd.CONFIG = BIT3 | BIT5 | BIT0;
+    notelcd.RSPORT = PC;
+    notelcd.RSMASK = BIT2;
+    notelcd.EPORT = PC;
+    notelcd.EMASK = BIT0;
+    notelcd.RWPORT = PC;
+    notelcd.RWMASK = BIT1;
+    setPortLCD(&notelcd, 2);
+    configLCD(&notelcd, CLKFRQ);
+    initLCD(&notelcd);
 
-	setupNoteScrolling();
-	setupButtons();
-	volatile uint32_t weakDelay = 0;
-	    int noteIndex = 0;
+    setupNoteScrolling();
+    setupButtons();
+    volatile uint32_t weakDelay = 0;
+        int noteIndex = 0;
 
-	P2->DIR |= BIT4;            // set P2.4 as output
-	P2->SEL0 |= BIT4;           // P2.4 set to TA0.1
-	P2->SEL1 &= ~BIT4;
+    P2->DIR |= BIT4;            // set P2.4 as output
+    P2->SEL0 |= BIT4;           // P2.4 set to TA0.1
+    P2->SEL1 &= ~BIT4;
 
-	TIMER_A0->CCR[0] = NOTEA4 - 1;
-	TIMER_A0->CCR[1] = (NOTEA4 / 2) - 1;
-	TIMER_A0->CCTL[1] |= 0x0060;
-	TIMER_A0->CTL = 0x0294;
+    TIMER_A0->CCR[0] = NOTEA4 - 1;
+    TIMER_A0->CCR[1] = (NOTEA4 / 2) - 1;
+    TIMER_A0->CCTL[1] |= 0x0060;
+    TIMER_A0->CTL = 0x0294;
 
-	TIMER_A2->CCR[2] = notePeriods[0];
-	TIMER_A2->CCTL[2] = 0x0010;
-	TIMER_A2->CTL = 0x0126;
-	NVIC->ISER[0] |= (1 << TA2_N_IRQn);
+    TIMER_A2->CCR[2] = notePeriods[0];
+    TIMER_A2->CCTL[2] = 0x0010;
+    TIMER_A2->CTL = 0x0126;
+    NVIC->ISER[0] |= (1 << TA2_N_IRQn);
 
     __enable_irq();
 
@@ -430,8 +437,7 @@ void TA1_0_IRQHandler(void) {
     rightLane[0] = rightLaneMap[mapPos];
     leftLane[0] = leftLaneMap[mapPos];
     mapPos++;
-    if(mapPos > strlen(leftLaneMap) - 1) mapPos = 0; //loops if map goes out of bounds TODO temp fix, should be changed to end the song
-
+    if(mapPos > strlen(leftLaneMap) - 1) mapPos = 0; //loops if map goes out of bounds
     /*
      * PRINT CHARACTERS
      */
