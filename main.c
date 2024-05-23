@@ -6,13 +6,236 @@
 #include <string.h>
 #include <stdio.h>
 
+#define NOTECNT 277
+// Note A4 - 440 Hz, B4 - 493.88 Hz, C5 - 523.26 Hz
+#define REST 0
+#define NOTEA3  54545
+#define NOTED4  40864
+#define NOTEE4  36404
+#define NOTEFSHARP4  32433
+#define NOTEG4  30612
+#define NOTEGSHARP4  28895
+#define NOTEA4  27273
+#define NOTEASHARP4  25742
+#define NOTEB4  24297
+#define NOTEC5  22934
+#define NOTECSHARP5  21646
+#define NOTED5  20431
+#define NOTEDSHARP5  19285
+#define NOTEE5  18203
+#define NOTEFSHARP5  16216
+#define NOTEG5  15306
+#define NOTEA5  13636
+#define NOTEASHARP5 12871
+#define NOTEB5  12149
+const uint16_t noteFreqs[277] = {NOTEFSHARP5, NOTECSHARP5, NOTEFSHARP5, NOTECSHARP5,
+                                NOTEFSHARP5, NOTECSHARP5, NOTEFSHARP5, NOTECSHARP5,
+                                NOTEFSHARP5, NOTECSHARP5, NOTEFSHARP5, NOTECSHARP5,
+                                NOTEB4, NOTEA4, NOTECSHARP5,
+                                NOTEA4, NOTEB4, NOTEE5, NOTEDSHARP5,
+                                NOTEE5, NOTEFSHARP5, NOTEDSHARP5, NOTEB4,
+                                NOTEFSHARP5, NOTEB4, NOTEFSHARP5, NOTEB4,
+                                NOTEFSHARP5, NOTEB4, NOTEFSHARP5, NOTEASHARP4,
+                                NOTEFSHARP5, NOTEASHARP4, NOTEG5,
+                                NOTEFSHARP5, NOTED5, NOTEFSHARP5, NOTED5,
+                                NOTEE5, NOTEFSHARP5, NOTEE5, REST,
+                                NOTED5, NOTECSHARP5,
+
+
+                                NOTEFSHARP5, NOTECSHARP5, NOTEFSHARP5, NOTECSHARP5,
+                                NOTEFSHARP5, NOTECSHARP5, NOTEFSHARP5, NOTECSHARP5,
+                                NOTEFSHARP5, NOTECSHARP5, NOTEFSHARP5, NOTECSHARP5,
+                                NOTEB4, NOTEA4, NOTECSHARP5,
+                                NOTEA4, NOTEB4, NOTEE5, NOTEDSHARP5,
+                                NOTEE5, NOTEFSHARP5, NOTEDSHARP5, NOTEB4,
+                                NOTEFSHARP5, NOTEB4, NOTEFSHARP5, NOTEB4,
+                                NOTEFSHARP5, NOTEB4, NOTEFSHARP5, NOTEASHARP4,
+                                NOTEFSHARP5, NOTEASHARP4, NOTEG5,
+                                NOTEFSHARP5, NOTED5, NOTEFSHARP5, NOTED5,
+                                NOTEE5, NOTEFSHARP5, NOTECSHARP5, REST,
+                                NOTEFSHARP5, NOTECSHARP5,
+
+                                NOTED5, NOTEA4,
+                                NOTEB4, NOTECSHARP5, NOTED5,
+                                NOTECSHARP5, NOTED5,
+                                NOTEA4, NOTEB4,
+                                NOTEA4, NOTEG4, NOTEFSHARP4,
+                                NOTEFSHARP5, NOTEE5,
+                                NOTED5, NOTEA4,
+                                NOTEB4, NOTECSHARP5, NOTED5,
+                                NOTECSHARP5, NOTED5,
+                                NOTEFSHARP5, NOTEG5,
+                                NOTEFSHARP5, NOTEE5, NOTED5,
+                                NOTEE5, NOTECSHARP5,
+                                NOTED5, NOTEA4,
+                                NOTEB4, NOTECSHARP5, NOTED5,
+                                NOTECSHARP5, NOTED5,
+                                NOTEA4, NOTEB4, //MEASURE 33
+                                NOTEA4, NOTEG4, NOTEFSHARP4,
+                                NOTEFSHARP5, NOTEE5,
+                                NOTED5, NOTEA4,
+                                NOTEB4, NOTECSHARP5, NOTED5,
+                                NOTECSHARP5, NOTED5,
+                                NOTEFSHARP5, NOTED5, NOTEFSHARP5, NOTED5,
+                                NOTEE5, NOTEFSHARP5, NOTEE5,
+                                NOTED5, NOTECSHARP5,
+                                NOTEA4, NOTEA5,
+                                NOTEE5,
+                                NOTED5, NOTEA5,
+                                NOTEA4,
+                                NOTEA4, NOTED5,
+                                NOTEA5, NOTEB5,
+                                NOTEA5, NOTEE5,
+                                NOTED5,
+                                NOTEA4, NOTEA5,
+                                NOTEE5, NOTED5,
+                                NOTEE5, NOTEFSHARP5, NOTED5, NOTEE5,
+                                NOTED5, NOTEA5, NOTEA4, NOTED5,
+                                NOTEE5, NOTEFSHARP5, NOTEE5, NOTEA5,
+                                NOTEFSHARP5, NOTEG5,
+                                NOTEFSHARP5, NOTEE5,
+                                NOTED5, NOTEE5,
+                                NOTEFSHARP5, NOTEG5,
+                                NOTEB5, NOTEA5,
+
+                                NOTEG4, NOTEG5, NOTEE5, NOTED5,
+                                NOTEC5, NOTEB4, NOTEC5,
+                                NOTED5, NOTEB5,
+                                NOTEASHARP5, NOTEA5, NOTEG5,
+                                NOTEA4, NOTEG5, NOTEE5, NOTED5,
+                                NOTEC5, NOTED5, NOTEE5,
+                                NOTEB4, NOTED5, NOTED5,
+                                NOTEC5, NOTEB4, NOTEC5,
+
+                                NOTEG4, NOTEG5, NOTEE5, NOTED5,
+                                NOTEC5, NOTEB4, NOTEC5,
+                                NOTED5, NOTEB5,
+                                NOTEASHARP5, NOTEA5, NOTEG5,
+                                NOTEA4, NOTEG5, NOTEE5, NOTED5,
+                                NOTEC5, NOTED5, NOTEE5,
+                                NOTEB4, NOTED5, NOTED5,
+                                NOTEC5, NOTEB4, NOTEC5,
+
+                                NOTEA4, NOTED4, NOTEE4, NOTED4, NOTEGSHARP4,
+                                NOTED4, NOTEE4, NOTED4, NOTEG4, NOTED4,
+                                NOTEE4, NOTEG4, NOTEFSHARP4, NOTEE4, NOTED4, NOTEA3,
+
+                                NOTEA4, NOTED4, NOTEE4, NOTED4, NOTEGSHARP4,
+                                NOTED4, NOTEE4, NOTED4, NOTEG4, NOTED4,
+                                NOTEE4, NOTEG4, NOTEFSHARP4, NOTEE4, NOTED4, REST,
+                                NOTEA4, NOTED4, NOTEE4, NOTED4, REST,
+                                NOTED4, NOTEE4, NOTEFSHARP4, NOTEE4, NOTED4};
+
+
+#define DOTTED_HALF_NOTE          58982
+#define DOTTED_QUARTER_NOTE       29491
+#define QUARTER_NOTE              19661
+#define EIGHTH_NOTE               9830
+#define SIXTEENTH_NOTE            4915
+
+const uint16_t notePeriods[277] = {EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE, //MEASURE 33
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  QUARTER_NOTE, QUARTER_NOTE,
+
+                                  DOTTED_QUARTER_NOTE, DOTTED_QUARTER_NOTE,
+                                  DOTTED_HALF_NOTE,
+                                  DOTTED_QUARTER_NOTE, DOTTED_QUARTER_NOTE,
+                                  DOTTED_HALF_NOTE,
+                                  DOTTED_QUARTER_NOTE, DOTTED_QUARTER_NOTE,
+                                  DOTTED_HALF_NOTE, EIGHTH_NOTE,
+                                  DOTTED_QUARTER_NOTE, DOTTED_QUARTER_NOTE,
+                                  DOTTED_HALF_NOTE,
+                                  DOTTED_QUARTER_NOTE, DOTTED_QUARTER_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  DOTTED_QUARTER_NOTE, DOTTED_QUARTER_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE,
+                                  DOTTED_QUARTER_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, DOTTED_QUARTER_NOTE,
+                                  QUARTER_NOTE, EIGHTH_NOTE,
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, DOTTED_HALF_NOTE,
+
+                                  DOTTED_QUARTER_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, DOTTED_HALF_NOTE,
+                                  DOTTED_QUARTER_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+                                  DOTTED_QUARTER_NOTE, DOTTED_QUARTER_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+
+                                  DOTTED_QUARTER_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+                                  DOTTED_QUARTER_NOTE, EIGHTH_NOTE,
+                                  EIGHTH_NOTE, EIGHTH_NOTE, DOTTED_HALF_NOTE,
+                                  DOTTED_QUARTER_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+                                  DOTTED_QUARTER_NOTE, DOTTED_QUARTER_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+
+                                  QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+                                  QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+
+                                  QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+                                  QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE,
+                                  QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE, EIGHTH_NOTE, QUARTER_NOTE,
+                                  EIGHTH_NOTE, QUARTER_NOTE, SIXTEENTH_NOTE, SIXTEENTH_NOTE, DOTTED_HALF_NOTE};
 /**
  * main.c
  * TODO write header file
  * TODO make wiring diagram
  */
-
-
 
 #define CLKFRQ  48000000 //MCLK configured with 48MHz
 #define ACLKFRQ 32000   //ACLK configured with 32kHz
@@ -23,7 +246,7 @@ char leftLane[LCD_SIZE];
 int mapPos;
 const char rightLaneMap[] = ">                 >       > >>>>>   >>>  |";
 const char leftLaneMap[] = ">                   >       > >>>>>   >>>|";
-
+uint32_t noteIndex = 0;
 LCD notelcd;
 LCD scorelcd;
 
@@ -138,13 +361,36 @@ void main(void)
 
 	setupNoteScrolling();
 	setupButtons();
+	volatile uint32_t weakDelay = 0;
+	    int noteIndex = 0;
 
+	P2->DIR |= BIT4;            // set P2.4 as output
+	P2->SEL0 |= BIT4;           // P2.4 set to TA0.1
+	P2->SEL1 &= ~BIT4;
+
+	TIMER_A0->CCR[0] = NOTEA4 - 1;
+	TIMER_A0->CCR[1] = (NOTEA4 / 2) - 1;
+	TIMER_A0->CCTL[1] |= 0x0060;
+	TIMER_A0->CTL = 0x0294;
+
+	TIMER_A2->CCR[2] = notePeriods[0];
+	TIMER_A2->CCTL[2] = 0x0010;
+	TIMER_A2->CTL = 0x0126;
+	NVIC->ISER[0] |= ~0x7FF;
 
     __enable_irq();
 
    SCROLL_TIMER->CTL |= 0x10; //Start note scrolling timer
    score = 0;
-   while(1);
+   while(1){
+       for(weakDelay = 1000000; weakDelay > 0; weakDelay--) {
+
+               }
+               noteIndex = (noteIndex + 1)%NOTECNT;
+               TIMER_A2->CTL |= BIT5;
+               TIMER_A0->CCR[0] = notePeriods[noteIndex] - 1;
+               TIMER_A0->CCR[1] = (notePeriods[noteIndex] / 2) - 1;
+   }
 }
 
 void TA1_0_IRQHandler(void) {
@@ -192,3 +438,35 @@ void PORT3_IRQHandler(void) {
     printStringLCD(&scorelcd, scoreString, sizeof(scoreString)/sizeof(scoreString[0]));
 
 }
+
+void TA2_N_IRQHandler(void)
+   {
+       int delay = 0;
+       /* Check if interrupt triggered by timer overflow */
+       if(TIMER_A2->CTL)
+       {
+
+           // Clear timer overflow flag
+           // TODO clear flag in TA1CTL
+           TIMER_A2->CTL &= ~BIT0;
+
+       }
+       /* Check if interrupt triggered by CCR2 */
+       if(TIMER_A2->CCTL[2] & TIMER_A_CCTLN_CCIFG)
+       {
+           // Clear CCR2 compare interrupt flag
+           TIMER_A2->CCTL[2] &= ~BIT0;
+
+           //Increment note arrays
+           noteIndex = (noteIndex + 1)%NOTECNT;
+           //Rest for 5ms
+           TIMER_A0->CCR[0] = 0;
+           TIMER_A0->CCR[1] = 0;
+           for( delay = 0; delay < 15000; delay++);
+           //Update note length
+           TIMER_A2->CCR[2] += notePeriods[noteIndex];
+           //Update note frequency
+           TIMER_A0->CCR[0] = noteFreqs[noteIndex] - 1;
+           TIMER_A0->CCR[1] = (noteFreqs[noteIndex] / 2) - 1;
+       }
+   }
