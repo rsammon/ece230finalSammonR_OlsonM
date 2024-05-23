@@ -244,8 +244,8 @@ const uint16_t notePeriods[277] = {EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH_NOTE, EIGHTH
  char rightLane[LCD_SIZE];
 char leftLane[LCD_SIZE];
 int mapPos;
-const char rightLaneMap[] = ">                 >       > >>>>>   >>>  |";
-const char leftLaneMap[] = ">                   >       > >>>>>   >>>|";
+char rightLaneMap[300*4];
+char leftLaneMap[300*4];
 uint32_t noteIndex = 0;
 LCD notelcd;
 LCD scorelcd;
@@ -312,9 +312,39 @@ void setupButtons(){
     NVIC->ISER[1] |= 0x1 << (PORT3_IRQn-32);
 }
 
+void generateMap(){
+
+    int rightPos = 16;
+    int leftPos = 16;
+    int i = 0;
+    int sixteenths;
+    int j = 0;
+    for(i = 0; i < sizeof(notePeriods)/sizeof(notePeriods[0]) - 1; i++){
+        sixteenths = (notePeriods[i]/SIXTEENTH_NOTE);
+        for(j = 0; j < sixteenths - 1; j++){
+            if(i %2){
+                rightLaneMap[rightPos] = ' ';
+                rightPos++;
+            } else {
+                leftLaneMap[leftPos] = ' ';
+                leftPos++;
+            }
+        }
+        if(i %2){
+            rightLaneMap[rightPos] = '>';
+            rightPos++;
+        } else {
+            leftLaneMap[leftPos] = '>';
+            leftPos++;
+        }
+    }
+}
+
 void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
+	generateMap();
+
 	configHFXT(); //configures HFXT as the source for SMCLK and MCLK at 48MHz
 	configLFXT(); //configures LFXT as the source for ACLK
 	/* config LCD with the following specs/configurations
@@ -382,7 +412,7 @@ void main(void)
 
    SCROLL_TIMER->CTL |= 0x10; //Start note scrolling timer
    score = 0;
-   while(1){
+   while(1);
 
 }
 
